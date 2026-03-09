@@ -5,9 +5,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev:gateway": "tsx watch backend/gateway/src/index.ts",
-    "dev:users": "tsx watch backend/users/src/index.ts",
-    "dev:notes": "tsx watch backend/notes/src/index.ts",
+    "dev:gateway": "tsx --env-file .env watch backend/gateway/src/index.ts",
+    "dev:users": "tsx --env-file .env watch backend/users/src/index.ts",
+    "dev:notes": "tsx --env-file .env watch backend/notes/src/index.ts",
     "dev:backend": "concurrently \"npm run dev:gateway\" \"npm run dev:users\" \"npm run dev:notes\"",
     "dev:frontend": "npm --prefix frontend run dev",
     "lint": "eslint .",
