@@ -1,5 +1,6 @@
 import type { Context, ServiceBroker } from 'moleculer';
 import type { IncomingMessage, ServerResponse } from 'http';
+import type { UserPayload, UserTokenPayload } from '@shared/schemas';
 
 export function createAuthMiddleware(broker: ServiceBroker) {
   return async function authMiddleware(
@@ -16,10 +17,9 @@ export function createAuthMiddleware(broker: ServiceBroker) {
 
     const token = authHeader.slice(7);
     try {
-      const user = await broker.call<{ id: number; email: string }, { token: string }>(
-        'users.validateToken',
-        { token },
-      );
+      const user = await broker.call<UserPayload, UserTokenPayload>('users.validateToken', {
+        token,
+      });
       (req as IncomingMessage & { $ctx?: Partial<Context> }).$ctx = { meta: { user } };
       next();
     } catch {

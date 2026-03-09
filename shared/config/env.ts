@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
+  // GateWay
+  GATEWAY_PORT: z.coerce.number().default(3000),
+
   // Users DB
   USERS_DB_HOST: z.string().default('localhost'),
   USERS_DB_PORT: z.coerce.number().default(5433),
