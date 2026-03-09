@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -20,9 +21,11 @@ export class Note {
   @Column({ type: 'text' })
   content!: string;
 
+  @Index()
   @Column({ type: 'int' })
   userId!: number;
 
+  @Index()
   @Column({ type: 'int', nullable: true })
   categoryId!: number | null;
 

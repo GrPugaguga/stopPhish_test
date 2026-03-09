@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,6 +17,7 @@ export class Category {
   @Column({ type: 'varchar' })
   name!: string;
 
+  @Index()
   @Column({ type: 'int' })
   userId!: number;
 
