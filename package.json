@@ -21,6 +21,10 @@
     "migration:run:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:run -d backend/users/src/data-source.ts",
     "migration:revert:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:revert -d backend/users/src/data-source.ts",
     "seed:users": "tsx --env-file .env backend/users/src/seeds/seed.ts",
+    "migration:generate:notes": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:generate -d backend/notes/src/data-source.ts backend/notes/src/migrations/Init",
+    "migration:run:notes": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:run -d backend/notes/src/data-source.ts",
+    "migration:revert:notes": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:revert -d backend/notes/src/data-source.ts",
+    "seed:notes": "tsx --env-file .env backend/notes/src/seeds/seed.ts",
     "prepare": "husky"
   },
   "keywords": [],
