@@ -17,12 +17,18 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "migration:generate:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:generate -d backend/users/src/data-source.ts backend/users/src/migrations/Init",
+    "migration:run:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:run -d backend/users/src/data-source.ts",
+    "migration:revert:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:revert -d backend/users/src/data-source.ts",
+    "seed:users": "tsx --env-file .env backend/users/src/seeds/seed.ts",
     "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.5",
     "@types/pg": "^8.18.0",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
@@ -38,10 +44,13 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3",
     "moleculer": "^0.14.35",
     "moleculer-web": "^0.10.8",
     "nats": "^2.29.3",
     "pg": "^8.20.0",
+    "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.28",
     "zod": "^4.3.6"
   }
