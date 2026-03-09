@@ -1,4 +1,4 @@
-import { Service, ServiceBroker } from 'moleculer';
+import { Context, Service, ServiceBroker } from 'moleculer';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ENV } from '@shared/config';
@@ -8,44 +8,55 @@ import {
   type CredentialsDto,
   type ValidateTokenDto,
 } from '@shared/schemas';
+import { UserRepository, UserRepositoryImpl } from './repository';
 import AppDataSource from './data-source.js';
-import { User } from './entity/User.js';
+import { UserPayload, UserTokenPayload, createAction } from '@shared/schemas';
 
 export default class UsersService extends Service {
+  private repo!: UserRepository;
+
   constructor(broker: ServiceBroker) {
     super(broker);
     this.parseServiceSchema({
       name: 'users',
+      created: this.onCreated,
       actions: {
-        register: { handler: this.register },
-        login: { handler: this.login },
-        validateToken: { handler: this.validateToken },
+        register: createAction<CredentialsDto, UserTokenPayload>(credentialsSchema, (ctx) =>
+          this.register(ctx),
+        ),
+        login: createAction<CredentialsDto, UserTokenPayload>(credentialsSchema, (ctx) =>
+          this.login(ctx),
+        ),
+        validateToken: createAction<ValidateTokenDto, UserPayload>(validateTokenSchema, (ctx) =>
+          this.validateToken(ctx),
+        ),
       },
     });
   }
 
-  async register(ctx: { params: CredentialsDto }) {
-    const { email, password } = credentialsSchema.parse(ctx.params);
+  onCreated() {
+    this.repo = new UserRepositoryImpl(AppDataSource);
+  }
 
-    const repo = AppDataSource.getRepository(User);
-    const existing = await repo.findOneBy({ email });
-    if (existing) throw new Error('Email already registered');
+  async register(ctx: Context<CredentialsDto>): Promise<UserTokenPayload> {
+    const { email, password } = ctx.params;
+
+    const user = await this.repo.findByEmail(email);
+    if (user) throw new Error('Email already registered');
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = repo.create({ email, password: hashed });
-    await repo.save(user);
+    const newUser = await this.repo.create({ email, password: hashed });
 
-    const token = jwt.sign({ id: user.id, email: user.email }, ENV.JWT_SECRET, {
+    const token = jwt.sign({ id: newUser.id, email: newUser.email }, ENV.JWT_SECRET, {
       expiresIn: '7d',
     });
     return { token };
   }
 
-  async login(ctx: { params: CredentialsDto }) {
-    const { email, password } = credentialsSchema.parse(ctx.params);
+  async login(ctx: Context<CredentialsDto>): Promise<UserTokenPayload> {
+    const { email, password } = ctx.params;
 
-    const repo = AppDataSource.getRepository(User);
-    const user = await repo.findOneBy({ email });
+    const user = await this.repo.findByEmail(email);
     if (!user) throw new Error('Invalid credentials');
 
     const valid = await bcrypt.compare(password, user.password);
@@ -57,8 +68,8 @@ export default class UsersService extends Service {
     return { token };
   }
 
-  async validateToken(ctx: { params: ValidateTokenDto }) {
-    const { token } = validateTokenSchema.parse(ctx.params);
+  async validateToken(ctx: Context<ValidateTokenDto>): Promise<UserPayload> {
+    const { token } = ctx.params;
     const payload = jwt.verify(token, ENV.JWT_SECRET) as { id: number; email: string };
     return { id: payload.id, email: payload.email };
   }
