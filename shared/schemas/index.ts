@@ -1,1 +1,1 @@
-// Shared Zod schemas
+export * from './user.schemas.js';
