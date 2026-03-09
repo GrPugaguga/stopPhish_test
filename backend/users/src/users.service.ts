@@ -11,6 +11,7 @@ import {
 import { UserRepository, UserRepositoryImpl } from './repository';
 import AppDataSource from './data-source.js';
 import { UserPayload, UserTokenPayload, createAction } from '@shared/schemas';
+import { ConflictError, UnauthorizedError } from '@shared/errors';
 
 export default class UsersService extends Service {
   private repo!: UserRepository;
@@ -42,7 +43,7 @@ export default class UsersService extends Service {
     const { email, password } = ctx.params;
 
     const user = await this.repo.findByEmail(email);
-    if (user) throw new Error('Email already registered');
+    if (user) throw new ConflictError('Email already registered');
 
     const hashed = await bcrypt.hash(password, 10);
     const newUser = await this.repo.create({ email, password: hashed });
@@ -57,10 +58,10 @@ export default class UsersService extends Service {
     const { email, password } = ctx.params;
 
     const user = await this.repo.findByEmail(email);
-    if (!user) throw new Error('Invalid credentials');
+    if (!user) throw new UnauthorizedError('Invalid credentials');
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) throw new Error('Invalid credentials');
+    if (!valid) throw new UnauthorizedError('Invalid credentials');
 
     const token = jwt.sign({ id: user.id, email: user.email }, ENV.JWT_SECRET, {
       expiresIn: '7d',

@@ -1,6 +1,7 @@
 import { Service, ServiceBroker } from 'moleculer';
 import type { Context } from 'moleculer';
 import type { UserPayload } from '@shared/schemas';
+import { NotFoundError } from '@shared/errors';
 import {
   createNoteSchema,
   updateNoteWithIdSchema,
@@ -81,7 +82,7 @@ export default class NotesService extends Service {
   async get(ctx: Context<{ id: number }, Meta>): Promise<Note> {
     const { id } = ctx.params;
     const note = await this.repo.findNoteById(id, ctx.meta.user);
-    if (!note) throw new Error('Note not found');
+    if (!note) throw new NotFoundError('Note not found');
     return note;
   }
 
