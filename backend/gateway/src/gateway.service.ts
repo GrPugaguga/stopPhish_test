@@ -1,4 +1,5 @@
 import { Service, ServiceBroker } from 'moleculer';
+import type { IncomingMessage, ServerResponse } from 'http';
 import ApiGateway from 'moleculer-web';
 import { createAuthMiddleware } from './middleware';
 import { ENV } from '@shared/config';
@@ -11,6 +12,16 @@ export default class GatewayService extends Service {
       mixins: [ApiGateway],
       settings: {
         port: ENV.GATEWAY_PORT,
+        onError(_req: IncomingMessage, res: ServerResponse, err: Record<string, unknown>) {
+          const status = (err.code as number) || 500;
+          res.writeHead(status, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              message: (err.message as string) || 'Internal server error',
+              code: (err.type as string) || 'UNKNOWN_ERROR',
+            }),
+          );
+        },
         routes: [
           {
             path: '/auth',
