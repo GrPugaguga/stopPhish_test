@@ -55,8 +55,9 @@ export class TypeOrmNotesRepository extends NotesRepository {
 
   async updateNote(user: UserPayload, data: UpdateNoteWithIdDto): Promise<Note> {
     const { id, ...rest } = data;
-    await this.notes.update({ id, userId: user.id }, rest);
-    return this.notes.findOneByOrFail({ id, userId: user.id });
+    const note = await this.notes.findOneByOrFail({ id, userId: user.id });
+    Object.assign(note, rest);
+    return this.notes.save(note);
   }
 
   async deleteNote(id: number, user: UserPayload): Promise<void> {
@@ -80,8 +81,9 @@ export class TypeOrmNotesRepository extends NotesRepository {
 
   async updateCategory(user: UserPayload, data: UpdateCategoryWithIdDto): Promise<Category> {
     const { id, ...rest } = data;
-    await this.categories.update({ id, userId: user.id }, rest);
-    return this.categories.findOneByOrFail({ id, userId: user.id });
+    const category = await this.categories.findOneByOrFail({ id, userId: user.id });
+    Object.assign(category, rest);
+    return this.categories.save(category);
   }
 
   async deleteCategory(id: number, user: UserPayload): Promise<void> {
