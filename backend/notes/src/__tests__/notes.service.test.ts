@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { ServiceBroker } from 'moleculer';
+import { QueryFailedError } from 'typeorm';
 
 const mockRepo = vi.hoisted(() => ({
   findNotes: vi.fn(),
@@ -85,6 +86,35 @@ describe('notes.create', () => {
   });
 });
 
+describe('notes.update', () => {
+  it('updates and returns note', async () => {
+    const note = { id: 1, title: 'Updated', content: 'New content', userId: 1, categoryId: 2 };
+    mockRepo.updateNote.mockResolvedValue(note);
+
+    const result = await broker.call(
+      'notes.update',
+      { id: 1, title: 'Updated', content: 'New content', categoryId: 2 },
+      { meta },
+    );
+    expect(mockRepo.updateNote).toHaveBeenCalledWith(user, {
+      id: 1,
+      title: 'Updated',
+      content: 'New content',
+      categoryId: 2,
+    });
+    expect(result).toEqual(note);
+  });
+
+  it('moves note to uncategorized with categoryId: null', async () => {
+    const note = { id: 1, title: 'Test', content: 'C', userId: 1, categoryId: null };
+    mockRepo.updateNote.mockResolvedValue(note);
+
+    const result = await broker.call('notes.update', { id: 1, categoryId: null }, { meta });
+    expect(mockRepo.updateNote).toHaveBeenCalledWith(user, { id: 1, categoryId: null });
+    expect(result).toEqual(note);
+  });
+});
+
 describe('notes.delete', () => {
   it('deletes note and returns success', async () => {
     mockRepo.deleteNote.mockResolvedValue(undefined);
@@ -116,11 +146,48 @@ describe('notes.categoriesCreate', () => {
   });
 });
 
+describe('notes.categoriesUpdate', () => {
+  it('updates category', async () => {
+    const cat = { id: 1, name: 'Renamed', userId: 1 };
+    mockRepo.updateCategory.mockResolvedValue(cat);
+
+    const result = await broker.call(
+      'notes.categoriesUpdate',
+      { id: 1, name: 'Renamed' },
+      { meta },
+    );
+    expect(mockRepo.updateCategory).toHaveBeenCalledWith(user, { id: 1, name: 'Renamed' });
+    expect(result).toEqual(cat);
+  });
+
+  it('throws ConflictError on duplicate name', async () => {
+    const qfe = new QueryFailedError('', [], new Error());
+    (qfe as unknown as { code: string }).code = '23505';
+    mockRepo.updateCategory.mockRejectedValue(qfe);
+
+    await expect(
+      broker.call('notes.categoriesUpdate', { id: 1, name: 'Dup' }, { meta }),
+    ).rejects.toThrow('Категория с таким именем уже существует');
+  });
+});
+
 describe('notes.categoriesDelete', () => {
   it('deletes category and returns success', async () => {
     mockRepo.deleteCategory.mockResolvedValue(undefined);
     const result = await broker.call('notes.categoriesDelete', { id: 1 }, { meta });
     expect(mockRepo.deleteCategory).toHaveBeenCalledWith(1, user);
     expect(result).toEqual({ success: true });
+  });
+});
+
+describe('DB error handling', () => {
+  it('categoriesCreate throws ConflictError on duplicate', async () => {
+    const qfe = new QueryFailedError('', [], new Error());
+    (qfe as unknown as { code: string }).code = '23505';
+    mockRepo.createCategory.mockRejectedValue(qfe);
+
+    await expect(broker.call('notes.categoriesCreate', { name: 'Dup' }, { meta })).rejects.toThrow(
+      'Категория с таким именем уже существует',
+    );
   });
 });
