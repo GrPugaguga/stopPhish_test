@@ -1,7 +1,8 @@
 import { Service, ServiceBroker } from 'moleculer';
 import type { Context } from 'moleculer';
 import type { UserPayload } from '@shared/schemas';
-import { NotFoundError } from '@shared/errors';
+import { NotFoundError, ConflictError } from '@shared/errors';
+import { QueryFailedError, EntityNotFoundError } from 'typeorm';
 import {
   createNoteSchema,
   updateNoteWithIdSchema,
@@ -25,6 +26,16 @@ import { Note } from './entity/Note.js';
 import { Category } from './entity/Category.js';
 
 type Meta = { user: UserPayload };
+
+function handleDbError(err: unknown): never {
+  if (err instanceof QueryFailedError && (err as unknown as { code: string }).code === '23505') {
+    throw new ConflictError('Категория с таким именем уже существует');
+  }
+  if (err instanceof EntityNotFoundError) {
+    throw new NotFoundError('Запись не найдена');
+  }
+  throw err;
+}
 
 const emptySchema = z.object({});
 
@@ -92,8 +103,11 @@ export default class NotesService extends Service {
   }
 
   async update(ctx: Context<UpdateNoteWithIdDto, Meta>): Promise<Note> {
-    const data = ctx.params;
-    return this.repo.updateNote(ctx.meta.user, data);
+    try {
+      return await this.repo.updateNote(ctx.meta.user, ctx.params);
+    } catch (err) {
+      handleDbError(err);
+    }
   }
 
   async delete(ctx: Context<{ id: number }, Meta>): Promise<{ success: boolean }> {
@@ -107,13 +121,19 @@ export default class NotesService extends Service {
   }
 
   async categoriesCreate(ctx: Context<CreateCategoryDto, Meta>): Promise<Category> {
-    const data = ctx.params;
-    return this.repo.createCategory({ ...data, user: ctx.meta.user });
+    try {
+      return await this.repo.createCategory({ ...ctx.params, user: ctx.meta.user });
+    } catch (err) {
+      handleDbError(err);
+    }
   }
 
   async categoriesUpdate(ctx: Context<UpdateCategoryWithIdDto, Meta>): Promise<Category> {
-    const data = ctx.params;
-    return this.repo.updateCategory(ctx.meta.user, data);
+    try {
+      return await this.repo.updateCategory(ctx.meta.user, ctx.params);
+    } catch (err) {
+      handleDbError(err);
+    }
   }
 
   async categoriesDelete(ctx: Context<{ id: number }, Meta>): Promise<{ success: boolean }> {

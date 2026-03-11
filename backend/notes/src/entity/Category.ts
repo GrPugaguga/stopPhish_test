@@ -10,6 +10,7 @@ import {
 import { Note } from './Note.js';
 
 @Entity('categories')
+@Index(['userId', 'name'], { unique: true })
 export class Category {
   @PrimaryGeneratedColumn()
   id!: number;

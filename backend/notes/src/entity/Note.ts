@@ -31,7 +31,7 @@ export class Note {
 
   @ManyToOne(() => Category, (category) => category.notes, {
     nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'categoryId' })
   category!: Category | null;
