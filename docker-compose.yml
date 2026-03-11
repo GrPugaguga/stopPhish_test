@@ -44,6 +44,82 @@ services:
     networks:
       - app-network
 
+  gateway:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE_NAME: gateway
+    ports:
+      - '3000:3000'
+    env_file: .env
+    environment:
+      USERS_DB_HOST: users-db
+      USERS_DB_PORT: 5432
+      NOTES_DB_HOST: notes-db
+      NOTES_DB_PORT: 5432
+      NATS_URL: nats://nats:4222
+    depends_on:
+      users-db:
+        condition: service_healthy
+      notes-db:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    networks:
+      - app-network
+
+  users:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE_NAME: users
+    env_file: .env
+    environment:
+      USERS_DB_HOST: users-db
+      USERS_DB_PORT: 5432
+      NATS_URL: nats://nats:4222
+    depends_on:
+      users-db:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    networks:
+      - app-network
+
+  notes:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE_NAME: notes
+    env_file: .env
+    environment:
+      NOTES_DB_HOST: notes-db
+      NOTES_DB_PORT: 5432
+      NATS_URL: nats://nats:4222
+    depends_on:
+      notes-db:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+    ports:
+      - '8080:80'
+    depends_on:
+      - gateway
+    networks:
+      - app-network
+
 volumes:
   users-db-data:
   notes-db-data:
