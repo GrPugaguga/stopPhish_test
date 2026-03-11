@@ -17,11 +17,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "migration:generate:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:generate -d backend/users/src/data-source.ts backend/users/src/migrations/Init",
+    "migration:generate:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:generate backend/users/src/migrations/Migration -d backend/users/src/data-source.ts",
     "migration:run:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:run -d backend/users/src/data-source.ts",
     "migration:revert:users": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:revert -d backend/users/src/data-source.ts",
     "seed:users": "tsx --env-file .env backend/users/src/seeds/seed.ts",
-    "migration:generate:notes": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:generate -d backend/notes/src/data-source.ts backend/notes/src/migrations/Init",
+    "migration:generate:notes": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:generate backend/notes/src/migrations/Migration -d backend/notes/src/data-source.ts",
     "migration:run:notes": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:run -d backend/notes/src/data-source.ts",
     "migration:revert:notes": "tsx --env-file .env ./node_modules/typeorm/cli.js migration:revert -d backend/notes/src/data-source.ts",
     "seed:notes": "tsx --env-file .env backend/notes/src/seeds/seed.ts",
@@ -55,6 +55,7 @@
     "nats": "^2.29.3",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
     "typeorm": "^0.3.28",
     "zod": "^4.3.6"
   }
