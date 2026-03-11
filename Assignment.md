@@ -35,15 +35,14 @@ backend-API, базой данных и простым frontend-интерфей
 - **Аутентификация: JWT + учёт пользователей** - выполнены и осуществляются через users сервис
 - **Категории заметок: Возможность группировать заметки по категориям** - выполнено, создана дополнительная сущность category и CRUD операции с ней
 - **Полнотекстовый поиск: Поиск заметок по содержимому** - выполнено, осуществляется через ILIKE запросы к бд
-- **Миграции: Использование миграций в ORM** - используются  миграции TypeORM
+- **Миграции: Использование миграций в ORM** - используются миграции TypeORM
 - **Обработка ошибок**: Все ошибки валидируются, для кастомных ошибок создан shared/errors
 - **Валидация: Валидация всех данных и на фронте, и в API** - работает через использование общих zod схем и хелпер shared/schemas/validator.ts для actions внутри сервисов
 - **Moleculer: Разделение бэкенда на сервисы** - Для бекенда используется Moleculer и Moleculer-web. Backend разделен на gateway, users, notes. Для транспорта выбрал NATS
 - **Docker: Dockerfile для backend и frontend** - созданы (frontend/Dockerfile и backend/Dockerfile)
-- **Тесты: Unit / Integration тесты API** - подключен vitest, созданы тесты для сервисов, middleware и gateway валидации ошибок в папках __tests__ внутри сервисов 
+- **Тесты: Unit / Integration тесты API** - подключен vitest, созданы тесты для сервисов, middleware и gateway валидации ошибок в папках **tests** внутри сервисов
 - **Kubernetes / k3s: Конфигурации для деплоя (Deployment, Service, ConfigMap, Secret)** - собрал конфиг внутри kubernetes папки
 - **CI/CD: GitHub Actions / GitLab CI** - внутри .github/workflows добавил ci с проверками линтера, формата и прогоном тестов. Также добавил простой .husky/pre-push
-
 
 ### Микросервисы
 
@@ -60,7 +59,6 @@ backend-API, базой данных и простым frontend-интерфей
 - `shared/schemas/` — Zod-схемы валидации + TypeScript-типы (единый источник правды)
 - `shared/errors/` — типизированные ошибки (BadRequest 400, Unauthorized 401, NotFound 404, ValidationError 422, Conflict 409)
 - `shared/config/` — env-переменные с Zod-валидацией
-
 
 ## API-эндпоинты
 
@@ -112,7 +110,6 @@ docker compose exec notes npx tsx backend/notes/src/seeds/seed.ts
 
 - **Frontend**: http://localhost:8080
 - **API**: http://localhost:3000
-
 
 ## Запуск в Kubernetes
 
@@ -215,7 +212,6 @@ npm run test
 | `backend/users/src/__tests__/users.service.test.ts`     | 6      | register, login, validateToken + ошибки                                      |
 | `backend/gateway/src/__tests__/auth.middleware.test.ts` | 4      | Bearer token, 401, MoleculerClientError                                      |
 | `backend/gateway/src/__tests__/gateway.onError.test.ts` | 4      | Маппинг error codes (404, 409, 500), защита от строковых кодов               |
-
 
 ### Миграции
 

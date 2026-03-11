@@ -8,8 +8,8 @@
 
 Из неочевидного нужно было разобраться с moleculer (в особенности с gateway и способом валидации DTO), в конце базово разобрался с k8s чтобы выполнить все задания
 
-Финальный стек: 
-Node.js, TypeScript, Vue3, Vite, Tailwind, Pinia, Vue Router, Axios, 
+Финальный стек:
+Node.js, TypeScript, Vue3, Vite, Tailwind, Pinia, Vue Router, Axios,
 Moleculer, TypeORM, PostgreSQL, Zod (валидация), bcryptjs + jsonwebtoken (для работы с JWT), NATS в качестве транспортера
 
 В начале работы собрал базовый CI в .github/workflows/ci.yml с проверкой линтера, форматера и тестов (добавил один тест пустышку)
@@ -35,7 +35,7 @@ Gateway сервис служит только для проксирования
 
 frontend сервис на две страницы — логин и основная страница с заметками.
 
-Внутренняя логика связи с backend и сохранения в памяти сервиса расписана в frontend/src/stores, выделен frontend/src/ui-kit с базовыми элементами и frontend/src/components с собранными компонентами. 
+Внутренняя логика связи с backend и сохранения в памяти сервиса расписана в frontend/src/stores, выделен frontend/src/ui-kit с базовыми элементами и frontend/src/components с собранными компонентами.
 За роутинг отвечает frontend/src/router
 
 Для группировки заметок добавлен базовый drag&drop, также менять категорию можно через попап редактирования
