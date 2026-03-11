@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes
+  namespace: stopphish
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notes
+  template:
+    metadata:
+      labels:
+        app: notes
+    spec:
+      containers:
+        - name: notes
+          image: stopphish-backend:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SERVICE_NAME
+              value: notes
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: db-secrets

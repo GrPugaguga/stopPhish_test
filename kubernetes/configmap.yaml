@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: stopphish
+data:
+  GATEWAY_PORT: '3000'
+  USERS_DB_HOST: users-db
+  USERS_DB_PORT: '5432'
+  USERS_DB_NAME: users_db
+  NOTES_DB_HOST: notes-db
+  NOTES_DB_PORT: '5432'
+  NOTES_DB_NAME: notes_db
+  NATS_URL: nats://nats:4222
