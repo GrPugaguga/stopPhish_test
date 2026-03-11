@@ -18,5 +18,9 @@ export const validateTokenSchema = z.object({
   token: z.string(),
 });
 
+export interface AuthResponse {
+  token: string;
+}
+
 export type CredentialsDto = z.infer<typeof credentialsSchema>;
 export type ValidateTokenDto = z.infer<typeof validateTokenSchema>;

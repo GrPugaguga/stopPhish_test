@@ -7,12 +7,19 @@ export const createCategorySchema = z.object({
 export const updateCategorySchema = createCategorySchema;
 
 export const categoryIdSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.coerce.number().int().positive(),
 });
 
 export const updateCategoryWithIdSchema = updateCategorySchema.extend({
-  id: z.number().int().positive(),
+  id: z.coerce.number().int().positive(),
 });
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export type CreateCategoryDto = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryDto = z.infer<typeof updateCategorySchema>;
