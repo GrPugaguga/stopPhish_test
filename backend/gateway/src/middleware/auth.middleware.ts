@@ -1,28 +1,37 @@
-import { type Context, Errors, type ServiceBroker } from 'moleculer';
+import { type Context, Errors } from 'moleculer';
 import type { IncomingMessage, ServerResponse } from 'http';
-import type { UserPayload, UserTokenPayload } from '@shared/schemas';
+import type { Meta, UserPayload, UserTokenPayload } from '@shared/schemas';
 
-export function createAuthMiddleware(broker: ServiceBroker) {
+export type MoleculerRequest = IncomingMessage & { $ctx: Context<unknown, Meta> };
+
+export function createAuthMiddleware() {
   return async function authMiddleware(
-    req: IncomingMessage,
+    req: MoleculerRequest,
     res: ServerResponse,
     next: (err?: Error) => void,
   ) {
+    if (req.method === 'OPTIONS') {
+      return next();
+    }
+
     const authHeader = req.headers['authorization'];
     if (!authHeader?.startsWith('Bearer ')) {
       res.writeHead(401, { 'Content-Type': 'application/json' });
       res.end(
-        JSON.stringify({ message: 'Missing or invalid Authorization header', code: 'UNAUTHORIZED' }),
+        JSON.stringify({
+          message: 'Missing or invalid Authorization header',
+          code: 'UNAUTHORIZED',
+        }),
       );
       return;
     }
 
     const token = authHeader.slice(7);
     try {
-      const user = await broker.call<UserPayload, UserTokenPayload>('users.validateToken', {
+      const user = await req.$ctx!.call<UserPayload, UserTokenPayload>('users.validateToken', {
         token,
       });
-      (req as IncomingMessage & { $ctx?: Partial<Context> }).$ctx = { meta: { user } };
+      req.$ctx!.meta.user = user;
       next();
     } catch (err) {
       const status = err instanceof Errors.MoleculerClientError ? err.code : 500;

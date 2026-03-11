@@ -4,6 +4,18 @@ import ApiGateway from 'moleculer-web';
 import { createAuthMiddleware } from './middleware';
 import { ENV } from '@shared/config';
 
+export function onError(_req: IncomingMessage, res: ServerResponse, err: Record<string, unknown>) {
+  const statusCode = typeof err.code === 'number' ? err.code : 500;
+  res.statusCode = statusCode;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(
+    JSON.stringify({
+      message: (err.message as string) || 'Internal server error',
+      code: (err.type as string) || 'UNKNOWN_ERROR',
+    }),
+  );
+}
+
 export default class GatewayService extends Service {
   constructor(broker: ServiceBroker) {
     super(broker);
@@ -12,16 +24,12 @@ export default class GatewayService extends Service {
       mixins: [ApiGateway],
       settings: {
         port: ENV.GATEWAY_PORT,
-        onError(_req: IncomingMessage, res: ServerResponse, err: Record<string, unknown>) {
-          const status = (err.code as number) || 500;
-          res.writeHead(status, { 'Content-Type': 'application/json' });
-          res.end(
-            JSON.stringify({
-              message: (err.message as string) || 'Internal server error',
-              code: (err.type as string) || 'UNKNOWN_ERROR',
-            }),
-          );
+        cors: {
+          origin: '*',
+          methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE'],
+          allowedHeaders: ['Content-Type', 'Authorization'],
         },
+        onError,
         routes: [
           {
             path: '/auth',
@@ -33,7 +41,7 @@ export default class GatewayService extends Service {
           },
           {
             path: '/api',
-            use: [createAuthMiddleware(broker)],
+            use: [createAuthMiddleware()],
             aliases: {
               'GET /notes': 'notes.list',
               'POST /notes': 'notes.create',
